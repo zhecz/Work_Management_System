@@ -20,6 +20,9 @@ from email.mime.multipart import MIMEMultipart
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
+from pandas import DataFrame
+
+import pandas as pd
 
 admin_permission = Permission(RoleNeed('admin'))
 admin=Admin(app)
@@ -650,16 +653,35 @@ class WorkView(BaseView):
                        # group_by(employee.employeeID).all()
         works=employee.query.join(work,employee.employeeID==work.employeeID)\
             .add_columns(employee.employeeID, employee.firstName,employee.lastName, work.buildingID,\
-                work.workType, work.unitID, work.endTimeAuto, work.startTimeAuto,\
-                    work.startTimeManual,work.endTimeManual)\
+                work.workType, work.endTimeAuto, work.startTimeAuto)\
                     .join(building, work.buildingID==building.buildingID)\
                         .add_columns(building.buildingName)\
                .order_by(employee.employeeID.desc()).all()          
             
         #work.query.group_by(work.employeeID).all()               
         print(works)
+        wholeData=[]
+        for i in works:
+            employeeID=i[1]
+            employeeFirstName=i[2]
+            employeeLastName=i[3]
+            BuildingName=i[8]
+            WorkType=i[5]
+            startTime=i[7]
+            endTime=i[6]
+            timedelta=(i[6]-i[7]).total_seconds()
+            Hours = timedelta//3600
+            Minutes = (timedelta%3600)//60
+            Seconds = (timedelta%3600)%60
+            wholeData.append([employeeID,employeeFirstName,employeeLastName,BuildingName,WorkType,startTime,endTime,Hours,Minutes,Seconds])
+            print(wholeData)
+
+        matchdataset=pd.DataFrame(wholeData,columns=['employeeID','employeeFirstName','employeeLastName','BuildingName',\
+            'WorkType','StartTime','EndTime','Hours','Minutes','Second'])   
+        matchdataset.to_excel("matchdatasetV5.xlsx",encoding='utf-8')     
+
         
-        return self.render('works.html', works=works)
+        return self.render('works1.html', works=works)
 
 
 
