@@ -21,6 +21,9 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
 
+admin_permission = Permission(RoleNeed('admin'))
+admin=Admin(app)
+
 
 #admin_permission = Permission(RoleNeed(2))
 
@@ -637,5 +640,32 @@ def pest_control(workorder):
     return render_template('pestcontrol.html', title='Pest Control', form=form)
  
 
+class WorkView(BaseView):
+    @expose('/')
+    def index(self):
+       # works=work.query.join(employee,employee.employeeID==work.employeeID)\
+           # .add_columns(employee.employeeID, employee.firstName,employee.lastName, work.buildingID,\
+               # work.startTimeAuto,\
+                    #work.endTimeAuto, work.startTimeManual, work.endTimeManual).\
+                       # group_by(employee.employeeID).all()
+        works=employee.query.join(work,employee.employeeID==work.employeeID)\
+            .add_columns(employee.employeeID, employee.firstName,employee.lastName, work.buildingID,\
+                work.workType, work.unitID, work.endTimeAuto, work.startTimeAuto,\
+                    work.startTimeManual,work.endTimeManual)\
+                    .join(building, work.buildingID==building.buildingID)\
+                        .add_columns(building.buildingName)\
+               .order_by(employee.employeeID.desc()).all()          
+            
+        #work.query.group_by(work.employeeID).all()               
+        print(works)
+        
+        return self.render('works.html', works=works)
 
+
+
+
+admin.add_view(ModelView(building,db.session))  
+admin.add_view(ModelView(employee,db.session))
+admin.add_view(WorkView(name='Work', endpoint='work'))
+#admin.add_view(ModelView(work,db.session))
 
