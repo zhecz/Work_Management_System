@@ -4,7 +4,7 @@ import re
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort, current_app
 from flaskDemo import app, db, bcrypt
-from flask_login import login_user, current_user, logout_user, login_required
+from flask_login import login_user, current_user, logout_user, login_required, LoginManager
 from flask_principal import Principal, Identity, AnonymousIdentity, identity_changed, Permission, RoleNeed, identity_loaded
 from flaskDemo.models import role,employee, unit,building,work,maintenance,apartmentrehab,others,landscaping,pestcontrol
 from flaskDemo.forms import ChangeEmailForm,ChangePhoneForm,ChangePasswordForm,ForgetPasswordForm,StartForm,BuildingForm,RegistrationForm,LoginForm,MaintenanceForm,ApartmentRehabForm,LandscapingForm,PestControlForm,OtherForm
@@ -32,6 +32,7 @@ admin=Admin(app)
 
 maintainence_permission = Permission(RoleNeed(1))
 frontdesk_permission = Permission(RoleNeed(2))
+admin_permission = Permission(RoleNeed(3))
 
 #Configure db
 
@@ -115,7 +116,7 @@ def logout():
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('choices'))
+        return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
         Employee = employee.query.filter_by(username=form.username.data).first()
@@ -257,6 +258,10 @@ def front(): #render frontpage buttons
         return render_template('frontpage-maintainence.html')
     elif Employee.roleID == 2:
         return render_template('frontpage-frontdesk.html')
+    elif Employee.roleID == 3:
+        return redirect('/admin')
+    
+
 
 
 #frontdesk app form
@@ -333,7 +338,7 @@ def stop_frontdesk():
 # ---------------------------------------------------------------------------------------------------
 
 @app.route("/choices", methods=['GET', 'POST'])
-@maintainence_permission.require(http_exception=403)
+#@maintainence_permission.require(http_exception=403)
 @login_required
 def choices(): #render worktype buttons
     return render_template('choices.html')
@@ -645,6 +650,9 @@ def pest_control(workorder):
 
 class WorkView(BaseView):
     @expose('/')
+    
+    
+
     def index(self):
        # works=work.query.join(employee,employee.employeeID==work.employeeID)\
            # .add_columns(employee.employeeID, employee.firstName,employee.lastName, work.buildingID,\
@@ -683,11 +691,28 @@ class WorkView(BaseView):
         
         return self.render('works1.html', works=works)
 
+    def is_accessible(self):
+        return (current_user.is_authenticated and current_user.roleID ==3)
 
 
+class ModelView_building(ModelView):
+    def is_accessible(self):
+        return (current_user.is_authenticated and current_user.roleID ==3)
 
-admin.add_view(ModelView(building,db.session))  
-admin.add_view(ModelView(employee,db.session))
+
+class ModelView_employee(ModelView):
+    def is_accessible(self):
+        return (current_user.is_authenticated and current_user.roleID ==3)
+
+class WorkView_logout(BaseView):
+    @expose('/')
+    def index(self):
+        return self.render('admin_logout.html')
+
+
+admin.add_view(ModelView_building(building,db.session))  
+admin.add_view(ModelView_employee(employee,db.session))
 admin.add_view(WorkView(name='Work', endpoint='work'))
+admin.add_view(WorkView_logout(name="Logout", endpoint='logout'))
 #admin.add_view(ModelView(work,db.session))
 
