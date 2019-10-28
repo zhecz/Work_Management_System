@@ -1,0 +1,79 @@
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/style.css') }}">
+ {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+              	
+                <div class="alert alert-{{ category }}" style="margin-bottom:0px"> <font size="1em">
+                  <span id='close'>x</span>
+                  {{ message }}</font>
+                </div>
+            
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+
+
+
+<h1 style="text-align:center;">Work</h1>
+<table class="blueTable">
+    <thead>
+    <tr>
+     <th>EmployeeID</th>
+    <th>EmployeeName</th>
+    <th>Apartment</th>
+    <th>WorkType</th>
+    <th>StartTime Auto</th>
+    <th>EndTime Auto</th>
+    <th>StartTime Manual</th>
+    <th>EndTime Manual</th>
+    <th>Hours Work Auto</th>
+    <th>Hours Work Manual</th>
+    
+    </tr>
+    </thead>
+    <tfoot>
+    <tr>
+    
+    </tr>
+    </tfoot>
+    <tbody>
+            {% for work in works %}   
+    <tr>
+    <td>{{work.employeeID}} </td>
+    
+    <td>{{ work.firstName}} {{ work.lastName}}</td>
+    
+    <td>{{work.buildingName}}</td>
+    
+    <td>{{work.workType}}</td>
+    
+    <td>{{work.startTimeAuto}}</td>
+    
+        <td>{{work.endTimeAuto}}</td>
+        
+        <td>{{work.startTimeManual}}</td>
+    
+        <td>{{work.endTimeManual}}</td>
+        <td>{{work.hours_work_auto}}</td>
+        <td>{{work.hours_work_manual}}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    
+    </table>
+    
+    <div style="margin: 25px">
+				<center>	<a href="{{ url_for('admin_front') }}"><button class="btn-show-contact10">
+				  Back
+				</button></center>
+				</div>
+				
+    <div style="margin: 25px">
+				<center>	<a href="{{ url_for('exporttocsv') }}"><button class="btn-show-contact10">
+				  Export
+				</button></center>
+				</div>
+
+
+
+ 
