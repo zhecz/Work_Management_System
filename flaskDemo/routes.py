@@ -867,8 +867,8 @@ class ModelView_unit(ModelView):
         
     column_list = ('unitID', 'unitName', 'building') 
 
-admin.add_view(ModelView_building(building,db.session))  
+admin.add_view(ModelView_building(building,db.session, name='Building'))  
 admin.add_view(ModelView(unit,db.session, name='Unit'))
-admin.add_view(ModelView_employee(employee,db.session))
+admin.add_view(ModelView_employee(employee,db.session,name='Employee'))
 admin.add_view(WorkView(name='Work', endpoint='work'))
 admin.add_view(WorkView_logout(name="Logout", endpoint='logout'))
