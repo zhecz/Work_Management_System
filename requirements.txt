@@ -3,7 +3,7 @@ cffi==1.13.1
 blinker==1.4
 certifi==2019.9.11
 Click==7.0
-Django==1.11.25
+Django==2.2.24
 Flask==1.1.1
 Flask-Bcrypt==0.7.1
 Flask-Login==0.4.1
